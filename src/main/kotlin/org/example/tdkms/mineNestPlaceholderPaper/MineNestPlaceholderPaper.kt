@@ -10,7 +10,7 @@ class MineNestPlaceholderPaper : JavaPlugin(), PluginMessageListener {
 
     private val channel = "mynest:survival"
     private val survivalPrefix = "survival:".toByteArray(StandardCharsets.UTF_8)
-    private var lastCountSurvival = 0
+    private var lastCountSurvival = -1
 
     override fun onEnable() {
 //        logger.info("=== Plugin Enabling ===")
