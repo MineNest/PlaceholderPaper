@@ -1,5 +1,6 @@
 package org.example.tdkms.mineNestPlaceholderPaper
 
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.plugin.messaging.PluginMessageListener
@@ -9,26 +10,27 @@ class MineNestPlaceholderPaper : JavaPlugin(), PluginMessageListener {
 
     private val channel = "mynest:survival"
     private val survivalPrefix = "survival:".toByteArray(StandardCharsets.UTF_8)
+    private var lastCountSurvival = 0
 
     override fun onEnable() {
-        logger.info("=== Plugin Enabling ===")
-        logger.info("Registering incoming channel: $channel")
+//        logger.info("=== Plugin Enabling ===")
+//        logger.info("Registering incoming channel: $channel")
         server.messenger.registerIncomingPluginChannel(this, channel, this)
-        logger.info("=== Plugin Enabled Successfully ===")
+//        logger.info("=== Plugin Enabled Successfully ===")
     }
 
     override fun onDisable() {
-        logger.info("Unregistering plugin channel")
+//        logger.info("Unregistering plugin channel")
         server.messenger.unregisterIncomingPluginChannel(this, channel)
     }
 
     override fun onPluginMessageReceived(channel: String, player: Player, message: ByteArray) {
-        logger.info("\n=== NEW MESSAGE RECEIVED ===")
-        logger.info("Channel: '$channel'")
-        logger.info("Sender: ${player.name}")
-        logger.info("Raw message size: ${message.size} bytes")
-        logger.info("Hex dump: ${bytesToHex(message)}")
-        logger.info("String representation: '${String(message, StandardCharsets.UTF_8)}'")
+//        logger.info("\n=== NEW MESSAGE RECEIVED ===")
+//        logger.info("Channel: '$channel'")
+//        logger.info("Sender: ${player.name}")
+//        logger.info("Raw message size: ${message.size} bytes")
+//        logger.info("Hex dump: ${bytesToHex(message)}")
+//        logger.info("String representation: '${String(message, StandardCharsets.UTF_8)}'")
 
         // Channel verification
         if (channel != this.channel) {
@@ -43,7 +45,7 @@ class MineNestPlaceholderPaper : JavaPlugin(), PluginMessageListener {
         }
 
         // Prefix verification
-        logger.info("Checking prefix match...")
+        //logger.info("Checking prefix match...")
         for (i in survivalPrefix.indices) {
             val expected = survivalPrefix[i]
             val actual = message[i]
@@ -52,10 +54,10 @@ class MineNestPlaceholderPaper : JavaPlugin(), PluginMessageListener {
                 return
             }
         }
-        logger.info("✅ Prefix verified")
+        //logger.info("✅ Prefix verified")
 
         // Count parsing
-        logger.info("Parsing count...")
+        //logger.info("Parsing count...")
         var count = 0
         val digits = StringBuilder()
         for (i in survivalPrefix.size until message.size) {
@@ -72,11 +74,28 @@ class MineNestPlaceholderPaper : JavaPlugin(), PluginMessageListener {
             }
         }
 
-        logger.info("Digits found: '$digits'")
-        logger.info("✅ Final count: $count")
-        logger.info("=== MESSAGE PROCESSING COMPLETE ===\n")
+//        logger.info("Digits found: '$digits'")
+//        logger.info("✅ Final count: $count")
+//        logger.info("=== MESSAGE PROCESSING COMPLETE ===\n")
 
-        // Update your hologram/scoreboard here
+        // Update hologram/scoreboard
+        if (lastCountSurvival != count) {
+            lastCountSurvival = count
+            updateHologram(count)
+        }
+    }
+
+    private fun updateHologram(count: Int) {
+        try {
+            val console = Bukkit.getServer().consoleSender
+
+            val command = "hologram edit survival setLine 6 <bold><gradient:#1FAB0D:#7CFC00>online:</gradient> <white>$count</white></bold>"
+            Bukkit.dispatchCommand(console, command)
+
+            //logger.info("Updated hologram to show $count players")
+        } catch (e: Exception) {
+            //logger.info("Failed to update hologram, ${e.message}")
+        }
     }
 
     private fun bytesToHex(bytes: ByteArray): String {
